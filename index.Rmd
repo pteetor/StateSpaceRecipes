@@ -1,0 +1,15 @@
+--- 
+title: "Recipes for State Space Models in R"
+author: "Paul Teetor"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: pteetor/state-space-recipes
+description: "This monograph is a collection of recipes for creating state-space models in R."
+---
+
+# Introduction

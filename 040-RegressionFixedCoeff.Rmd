@@ -1,0 +1,11 @@
+# Regression Model, Fixed Coefficients {#regressionFixed}
+
+## Fitting a Regression Model, Fixed Coefficients
+
+## Smoothing With a Regression Model, Fixed Coefficients
+
+## Filtering With a Regression Model, Fixed Coefficients
+
+## Diagnosing a Regression Model, Fixed Coefficients
+
+## Plotting a Regression Model, Fixed Coefficients

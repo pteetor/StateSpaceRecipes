@@ -1,0 +1,21 @@
+# The Local Level Model {#localLevel}
+
+## Fitting a Local Level Model
+
+### Problem {-}
+
+### Solution {-}
+
+### Discusion {-}
+
+### Alt. Solution {-}
+
+### See Also {-}
+
+## Smoothing With a Local Level Model
+
+## Filtering With a Local Level Model
+
+## Diagnosing a Local Level Model
+
+## Plotting a Local Level Model

@@ -1,0 +1,11 @@
+# The Local Linear Trend Model {#localLinearTrend}
+
+## Fitting a Local Linear Trend Model
+
+## Smoothing With a Local Linear Trend Model
+
+## Filtering With a Local Linear Trend Model
+
+## Diagnosing a Local Linear Trend Model
+
+## Plotting a Local Linear Trend Model

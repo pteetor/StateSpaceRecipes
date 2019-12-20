@@ -1,0 +1,21 @@
+# Random Walk Model {#randomWalk}
+
+## Fitting a Random Walk Model
+
+### Problem {-}
+
+### Solution {-}
+
+### Discusion {-}
+
+### Alt. Solution {-}
+
+### See Also {-}
+
+## Smoothing With a Random Walk Model
+
+## Filtering With a Random Walk Model
+
+## Diagnosing a Random Walk Model
+
+## Plotting a Random Walk Model
