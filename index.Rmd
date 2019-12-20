@@ -13,3 +13,92 @@ description: "This monograph is a collection of recipes for creating state-space
 ---
 
 # Introduction
+
+This monograph is a collection of recipes for creating state-space models in R.
+I like the power of state-space models,
+and R has several excellent packages for building them.
+Unfortunately, it's not quite an "out of the box" technology.
+Using any package involves numerous little details,
+and unless I used the package very recently,
+building a model requires pulling out the package documentation,
+reading it all over again, and trying to remember how the parts fit together.
+One day I got tired of that,
+so I put together these recipes.
+
+This is not a tutorial for state-space models.
+For a general introduction to state-space modeling,
+I recommend the book by Commandeur and Koopman[^CommandeurKoopman2007].
+
+In these notes, I use the `StructTS` function
+to create the simpler models,
+and I use the `dlm` package
+for more complicated models.
+There isn't room here to cover other R packages.
+If you're interested in a survey of state-space packaqes for R,
+I recommend the excellent review by Tusell[^Tusell2011].
+
+## The StructTS function
+R includes a function, `StructTS`, which can quickly and easily estimate
+the parameters of simple state-space models
+such as the *local level* model or the *local linear trend* model.[^Ripley2002]
+
+`StructTS` is one function in a group of functions
+which, together, provide many features of state-space modeling.
+
+Function        Purpose
+---------       --------
+StructTS        Estimate parameters of a simple state-space model
+tsdiag          Plot diagnostics for state-space model
+KalmanLike      Calculate parameters' log-likelihood (Gaussian model)
+KalmanRun       Filter time series data
+tsSmooth        Smooth time series data (calls KalmanSmooth)
+KalmanForecast  Forecast time series points from model
+makeARIMA       Create state-space model equivalent to ARIMA model
+
+## The dlm package
+For the advanced recipes,
+I use the `dlm` package originally created by Giovanni Petris.[^Petris2010]
+The package is very well documented,
+and Petris has even written a book regarding state-space models in general
+and the `dlm` package in particular.[^PPC2009]
+There is also an overview written by Petris and Petrone[^PetrisPetrone2011]
+which discusses several R packages with an emphasis on the `dlm` package.
+
+The package contains many useful functions.
+This monograph uses these.
+
+Function     Purpose
+------------ --------------------------------------------------
+dlmModPoly   Construct polynomial model
+dlmModReg    Construct regression model
+dlmMLE       Estimate maximum likelihood parameters of model
+dlmFilter    Filter a time series
+dlmSmooth    Smooth a time series
+dlmBSample   Draw from the posterior distribution
+
+The package includes a very cool feature,
+which is the ability to "add" models together into a compound model.
+That feature is not illustrated here,
+but I urge any serious user to study the feature.
+It would let you, say, easily combine a regression model with an ARMA model
+to create a better model your data.
+
+## The examples
+Many recipes includes an example.
+The examples are intended to be fully stand-alone,
+meaning you can cut and paste them directly into R and watch them run.
+
+All examples use some concrete dataset, typically the Nile River data included with R.
+The recipes start by assigning the time series data to variable $y$, like this.
+```{r, eval=FALSE, echo=TRUE}
+y <- datasets::Nile
+```
+The subsequent code is written in terms of $y$, not a specific dataset.
+My goal was to let you copy the recipe, substitute your data for the Nile River data,
+and try the recipe for yourself.
+
+## Online materials
+R code examples are available on a
+public Github repository.
+
+> https://github.com/pteetor/StateSpaceRecipes

@@ -1,3 +1,8 @@
-`r if (knitr:::is_html_output()) '
 # References {-}
-'`
+
+[^CommandeurKoopman2007]: Commandeur and Koopman (2007). *An Introduction to State Space Time Series Analysis*, Oxford University Press (ISBN 978-0-19-922887-4)
+[^Petris2010]: Petris (2010). "An R Package for Dynamic Linear Models", *Journal of Statistical Software* (http://www.jstatsoft.org/v36/i12/paper)
+[^PetrisPetrone2011]: Petris and Petrone (2011). "State Space Models in R", *Journal of Statistical Software* (http://www.jstatsoft.org/v41/i04/paper)
+[^PPC2009]: Petris, Petrone, and Campagnoli (2009). *Dynamic Linear Models with R*, Springer (ISBN 978-0-387-77237-0)
+[^Ripley2002]: Ripley (2002). "Time Series in R 1.5.0", *R News* (http://cran.r-project.org/doc/Rnews/Rnews_2002-2.pdf)
+[^Tusell2011]: Tusell (2011). "Kalman Filtering in R", *Journal of Statistical Software* (http://www.jstatsoft.org/v39/i02/paper)

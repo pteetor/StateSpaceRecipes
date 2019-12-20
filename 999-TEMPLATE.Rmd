@@ -24,10 +24,14 @@ You can write citations, too. For example, we are using the **bookdown** package
 
 ## Fitting an XXX Model
 
+## Diagnosing an XXX Model
+
 ## Smoothing With an XXX Model
 
 ## Filtering With an XXX Model
 
-## Diagnosing an XXX Model
+## Plotting Filtered or Smoothed Results with an XXX Model
 
-## Plotting an XXX Model
+## Forecasting with an XXX Model
+
+## Plotting Forecasted Values with an XXX Model

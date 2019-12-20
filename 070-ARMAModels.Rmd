@@ -1,0 +1,15 @@
+# ARMA Models {#arma}
+
+## Fitting an ARMA Model
+
+## Diagnosing an ARMA Model
+
+## Smoothing With an ARMA Model
+
+## Filtering With an ARMA Model
+
+## Plotting Filtered or Smoothed Results with an ARMA Model
+
+## Forecasting with an ARMA Model
+
+## Plotting Forecasted Values with an ARMA Model
