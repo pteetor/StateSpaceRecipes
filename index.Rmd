@@ -8,7 +8,7 @@ documentclass: book
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: pteetor/state-space-recipes
+github-repo: pteetor/StateSpaceRecipes
 description: "This monograph is a collection of recipes for creating state-space models in R."
 ---
 
