@@ -54,7 +54,9 @@ There isn't room here to cover other R packages.
 If you're interested in a survey of state-space packaqes for R,
 I recommend the excellent review by Tusell[^Tusell2011].
 
-## The StructTS function
+## The Software
+
+### The StructTS function
 R includes a function, `StructTS`, which can quickly and easily estimate
 the parameters of simple state-space models
 such as the *local level* model or the *local linear trend* model.[^Ripley2002]
@@ -72,7 +74,7 @@ tsSmooth        Smooth time series data (calls KalmanSmooth)
 KalmanForecast  Forecast time series points from model
 makeARIMA       Create state-space model equivalent to ARIMA model
 
-## The dlm package
+### The dlm package
 For the advanced recipes,
 I use the `dlm` package originally created by Giovanni Petris.[^Petris2010]
 The package is very well documented,
@@ -100,7 +102,7 @@ but I urge any serious user to study the feature.
 It would let you, say, easily combine a regression model with an ARMA model
 to create a better model your data.
 
-## The examples
+## The Examples
 Many recipes includes an example.
 The examples are intended to be fully stand-alone,
 meaning you can cut and paste them directly into R and watch them run.
