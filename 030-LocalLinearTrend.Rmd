@@ -286,5 +286,8 @@ see [Smoothing With a Regression Model, Fixed Coefficients](#smoothRegressionFix
 ### See Also {-}
 
 
+## Plotting Smoothed or Filtered Results with a Local Linear Trend Model
 
-## Plotting a Local Linear Trend Model
+## Forecasting with a Local Linear Trend Model
+
+## Plotting Forecasted Values with a Local Linear Trend Model

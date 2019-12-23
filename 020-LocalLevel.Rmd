@@ -178,6 +178,8 @@ cat("Observational variance:", model$V, "\n",
 
 ### See Also {-}
 
+## Diagnosing a Local Level Model
+
 ## Smoothing With a Local Level Model
 
 ### Problem {-}
@@ -194,6 +196,8 @@ cat("Observational variance:", model$V, "\n",
 
 ## Filtering With a Local Level Model
 
-## Diagnosing a Local Level Model
+## Plotting Smoothed or Filtered Results with a Local Level Model
 
-## Plotting a Local Level Model
+## Forecasting with a Local Level Model
+
+## Plotting Forecasted Values with a Local Level Model
