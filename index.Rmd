@@ -1,5 +1,5 @@
 --- 
-title: "Recipes for State Space Models in R"
+title: "State Space Recipes in R"
 author: "Paul Teetor"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -11,6 +11,23 @@ link-citations: yes
 github-repo: pteetor/StateSpaceRecipes
 description: "This monograph is a collection of recipes for creating state-space models in R."
 ---
+
+```{r globals, include=FALSE}
+
+#
+# Document global definitions
+#
+
+suppressPackageStartupMessages({
+    library(dlm)
+})
+
+knitr::opts_chunk$set(prompt=FALSE, echo=TRUE, comment="##")
+
+# Globals for this document
+ALT_COLOR = "red"
+ALT_STYLE = "dashed"
+```
 
 # Introduction
 

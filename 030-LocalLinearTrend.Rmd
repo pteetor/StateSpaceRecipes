@@ -1,11 +1,290 @@
 # The Local Linear Trend Model {#localLinearTrend}
+The *local linear trend model* builds on the [local level model](#localLevel).
+It adds a time-varying trend, $\nu_{t}$, that follows a random walk.
+As before, we observe _y_, which is the underlying level plus noise.
+
+\begin{eqnarray*}
+  y_{t} & = & \mu_{t} + \epsilon_{t}, \qquad \epsilon_{t} \sim N(0, \sigma_{\epsilon}^{2}) \\
+  \mu_{t} & = & \mu_{t-1} + \nu_{t-1} + \xi_{t}, \qquad \xi_{t} \sim N(0, \sigma_{\xi}^{2}) \\
+  \nu_{t} & = & \nu_{t-1} + \zeta_{t}, \qquad \zeta_{t} \sim N(0, \sigma_{\zeta}^{2})
+\end{eqnarray*}
+
+This model has five parameters.
+
+---------------------------  --------------------------------------------
+$\sigma_{\epsilon}^{2}$      Variance of observation errors, $\epsilon$
+$\sigma_{\xi}^{2}$           Variance of transition errors, $\xi$
+$\sigma_{\zeta}^{2}$         Variance of transition errors, $\zeta$
+$\mu_{0}$                    Initial level of $\mu$
+$\lambda_{0}$                Initial level of $\lambda$
+---------------------------  --------------------------------------------
+
 
 ## Fitting a Local Linear Trend Model
 
+### Problem {-}
+You want to build a local linear trend model of your data.
+
+### Solution {-}
+Estimate the parameters
+by calling `StructTS` with `type="trend"`.
+
+```{r, eval=FALSE}
+struct <- StructTS(y, type="trend")
+if (struct$code != 0) stop("optimizer did not converge")
+```
+
+`StructTS` returns a list that contains these elements, among others.
+
+----------------   -----------------------------------
+`struct$coef`      Vector of estimated parameters
+`struct$model0`    List of initial state and levels
+----------------   -----------------------------------
+
+
+### Example {-}
+
+This code constructs a local linear trend model for the Nile River data.
+```{r, eval=TRUE}
+y <- datasets::Nile
+
+struct <- StructTS(y, type="trend")
+if (struct$code != 0) stop("optimizer did not converge")
+
+print(struct$coef)
+
+cat("Transitional variance:", struct$coef["level"], "\n",
+    "Slope variance:", struct$coef["slope"], "\n",
+    "Observational variance:", struct$coef["epsilon"], "\n",
+    "Initial level of mu:", struct$model0$a[1], "\n",
+    "Initial level of lambda:", struct$model0$a[2], "\n" )
+```
+
+Oh darn.
+The slope component's variance is zero,
+indicating that the slope is best held constant.
+We can conclude that the local linear trend model is overkill
+and the simpler local level model is sufficient.
+That makes for a lousy example,
+but its a good reminder so check and interpret the MLE parameters carefully.
+They might be telling you a story.
+
+### Discussion {-}
+
+### Alt. Solution {-}
+*This Solution uses the `dlm` package.*
+
+The `dlm` documentation refers to this model as the _linear growth model_.
+
+The `dlm` code for estimating a local linear trend model
+begins by defining a function capable of creating the appropriate _dlm_
+model object from five parameters.
+
+```{r, eval=FALSE}
+buildModPoly2 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])
+  m0 <- v[4:5]
+  dlmModPoly(order=2, dV=dV, dW=dW, m0=m0)
+}
+```
+
+Notice that the five model parameters are packed into
+one 5-element R vector.
+
+The `dlmMLE` uses our `buildModPoly2` function
+to find the maximum likelihood estimates (MLE) of the parameters.
+It uses numerical optimization, so always check for convergence.
+
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- 0.0
+
+parm <- c(log(varGuess), log(varGuess), log(varGuess),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, buildModPoly2)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+From the MLE parameters, we can construct the final model object.
+
+```{r, eval=FALSE}
+model <- buildModPoly2(mle$par)
+```
+
+The `model` object contains the estimated parameters (among other things).
+
+------ -------------------------------------------------------
+`V`    Variance of the observations (scalar)
+`W`    Variance of the state variables' error terms (matrix)
+`m0`   Initial values of the state variables (vector)
+------ -------------------------------------------------------
+
+
+### Alt. Example {-}
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+
+buildModPoly2 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])
+  m0 <- v[4:5]
+  dlmModPoly(order=2, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- 0.0
+
+parm <- c(log(varGuess), log(varGuess), log(varGuess),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, buildModPoly2)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModPoly2(mle$par)
+```
+
+### See Also {-}
+
+## Diagnosing a Local Linear Trend Model {#diagnoseLocalLinearTrend}
+
+### Problem {-}
+After fitting a local linear trend model using `StructTS`,
+you want to assess the quality of the model.
+
+### Solution {-}
+The `tsdiag` function produces plots
+that are useful for evaluating your StructTS model.
+
+```{r, eval=FALSE}
+tsdiag(struct)
+```
+
+### Example {-}
+This code constructs a local linear trend model for the Nile data,
+then produces diagnostics plots.
+
+```{r, eval=TRUE, fig.height=10.5}
+y <- datasets::Nile
+
+struct <- StructTS(y, type="trend")
+if (struct$code != 0) stop("optimizer did not converge")
+
+tsdiag(struct)
+```
+
+### Discussion {-}
+
+### Alt. Solution {-}
+*This Solution uses the `dlm` package.*
+
+The `tsdiag` function is a generic function for diagnosing time series models,
+and the `dlm` package has an implementation.
+It produces useful plots for identifying problems in your model.
+
+The diagnostics are based on the posterior distribution defined by the model,
+so call `dlmFilter` first to construct the posterior,
+then apply `tsdiag` to the result.
+
+```{r, eval=FALSE}
+filt <- dlmFilter(y, model)
+tsdiag(filt)
+```
+
+### Alt. Example {-}
+
+### See Also {-}
+
 ## Smoothing With a Local Linear Trend Model
+
+### Problem {-}
+After building a local linear trend model using `StructTS`,
+you want to smooth the data;
+that is, remove the noise component.
+
+### Solution {-}
+The `tsSmooth` function can smooth your data.
+based on a state-space model created by `StructTS`.
+
+```{r, eval=FALSE}
+smoothed <- tsSmooth(struct)
+```
+
+### Example {-}
+This code estimates a local linear trend model for the Nile data,
+constructs the smoothed time series, and dumps the result.
+
+```{r, eval=TRUE}
+y <- datasets::Nile
+
+struct <- StructTS(y, type="trend")
+if (struct$code != 0) stop("optimizer did not converge")
+
+smoothed <- tsSmooth(struct)
+str(smoothed)
+```
+
+A plot below illustrates the effect of smoothing
+based on a local linear trend model of the Nile River data.
+
+```{r, eval=TRUE, echo=FALSE, fig.pos="h"}
+both = cbind(y=Nile, smoothed=smoothed[,1])
+plot(both, plot.type="single",
+     col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE),
+     main="Smoothing a Local Linear Trend Model",
+     ylab="Annual Flow" )
+legend("topright", c("original", "smoothed"),
+       col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE) )
+```
+
+### Discussion {-}
+
+### Alt. Solution {-}
+*This solution uses the `dlm` package.`
+
+The `dlm` package provides a function, `dlmSmooth`,
+for smoothing your data based on a model.
+If $y$ is your data
+and `model` is any model created by `dlm`,
+such as the recipes in this monograph,
+then this call will compute the smoothed data.
+
+```{r, eval=FALSE}
+smooth <- dlmSmooth(y, model)
+## smooth$s contains the smoothed values
+```
+
+### See Also {-}
+
+For an example of diagnosing a model built with the `dlm` package,
+see [Diagnosing a Regression Model, Fixed Coefficients](#diagnoseRegressionFixed).
+
+For an example of smoothing with the `dlm` package,
+see [Smoothing With a Regression Model, Fixed Coefficients](#smoothRegressionFixed).
+
 
 ## Filtering With a Local Linear Trend Model
 
-## Diagnosing a Local Linear Trend Model
+### Problem {-}
+
+### Solution {-}
+
+### Example {-}
+
+### Discussion {-}
+
+### Alt. Solution {-}
+
+### Alt. Example {-}
+
+### See Also {-}
+
+
 
 ## Plotting a Local Linear Trend Model

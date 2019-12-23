@@ -2,10 +2,115 @@
 
 ## Fitting a Regression Model, Fixed Coefficients
 
-## Smoothing With a Regression Model, Fixed Coefficients
+## Diagnosing a Regression Model, Fixed Coefficients {#diagnoseRegressionFixed}
+
+### Problem {-}
+
+### Solution {-}
+
+### Example {-}
+This code assumes that `model` was fit by the recipe, above,
+for estimating a regression with fixed coefficients.
+
+(*Move to footnote:* The code also assumes that `x` and `y`
+ are the regressor and time series data, respectively, as in that recipe.)
+
+It produces the diagnostic plots for the model.
+
+```{r, eval=TRUE, echo=FALSE}
+library(dlm)
+
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)
+  m0 <- c(v[3], v[4])
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+diffVar <- var(diff(y), na.rm=TRUE)
+INIT_OBS_LOG_VAR <- log(diffVar)
+INIT_TRANS_LOG_VAR <- log(diffVar / 5)
+parm <- c(INIT_OBS_LOG_VAR, INIT_TRANS_LOG_VAR, y[1], 0.0)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
+```{r, eval=TRUE, echo=TRUE, fig.pos="h", fig.height=10.5}
+filt <- dlmFilter(y, model)
+tsdiag(filt,
+       main="Diagnostics for Regression Model" )
+```
+
+
+### Discussion {-}
+
+### See Also {-}
+
+
+
+## Smoothing With a Regression Model, Fixed Coefficients {#smoothRegressionFixed}
+
+### Problem {-}
+
+### Solution {-}
+
+### Example {-}
+This example assumes that `model` was created by the example, above,
+for estimating a regression with fixed coefficients.
+
+(*Move to footnote:* The example code also assumes that `x` and `y`
+ are the predictor and the time series data, respectively, from that recipe.)
+
+It smooths the original data based on that model,
+then plots both the data and smoothed values.
+```{r, eval=TRUE, echo=FALSE}
+library(dlm)
+
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)
+  m0 <- c(v[3], v[4])
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+diffVar <- var(diff(y), na.rm=TRUE)
+INIT_OBS_LOG_VAR <- log(diffVar)
+INIT_TRANS_LOG_VAR <- log(diffVar / 5)
+parm <- c(INIT_OBS_LOG_VAR, INIT_TRANS_LOG_VAR, y[1], 0.0)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
+```{r, eval=TRUE, echo=FALSE, fig.pos="h"}
+smooth <- dlmSmooth(y, model)
+
+## The final, smoothed data is this linear combination
+smoothed <- smooth$s[-1,1] + x*smooth$s[-1,2]
+
+both <- cbind(y=y, smoothed=smoothed)
+plot(both, plot.type="single",
+     lty=c("solid", ALT_STYLE), col=c("black", ALT_COLOR),
+     main="Smoothing a Regression Model",
+     ylab="Annual Flow" )
+```
+
+### Discussion {-}
+
+### See Also {-}
+
 
 ## Filtering With a Regression Model, Fixed Coefficients
-
-## Diagnosing a Regression Model, Fixed Coefficients
 
 ## Plotting a Regression Model, Fixed Coefficients
