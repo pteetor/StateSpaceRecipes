@@ -19,7 +19,9 @@ description: "This monograph is a collection of recipes for creating state-space
 #
 
 suppressPackageStartupMessages({
-    library(dlm)
+  library(magrittr)
+  library(tidyverse)
+  library(dlm)
 })
 
 knitr::opts_chunk$set(prompt=FALSE, echo=TRUE, comment="##")
@@ -108,16 +110,107 @@ The examples are intended to be fully stand-alone,
 meaning you can cut and paste them directly into R and watch them run.
 
 All examples use some concrete dataset, typically the Nile River data included with R.
-The recipes start by assigning the time series data to variable $y$, like this.
+Many recipes start by assigning the time series data to variable $y$, like this.
+
 ```{r, eval=FALSE, echo=TRUE}
 y <- datasets::Nile
 ```
+
 The subsequent code is written in terms of $y$, not a specific dataset.
 My goal was to let you copy the recipe, substitute your data for the Nile River data,
 and try the recipe for yourself.
 
+## Smoothing Versus Filtering {#smoothingVersusFiltering}
+Every state-space model identifies a noise component in your data,
+and there are smoothing and filtering algorithms that
+can remove the noise.
+The difference between those algorithms is what they assume.
+
+Suppose you have a time series with observations
+at times $t_0$ through $t_T$,
+
+$$t_0, t_1, ..., t_T$$
+
+and you want to remove the noise from some intermediate point, say $t_i$.
+
+$$t_0, t_1, ..., t_i, ..., t_T$$
+
+*Smoothing* assumes the entire time series data is available to you,
+start to finish, from $t_0$ through $t_T$.
+
+*Filtering* assumes only the data from $t_0$ through $t_i$
+is available;
+that is, you've not yet seen the data from $t_i+1$ through $t_T$.
+
+Because smoothing has the entire dataset available,
+it can estimate the best model and, hence,
+does the best job of separating the signal from the noise.
+Filtering can only estimate the best "so far",
+given what we've observed,
+so it estimates an imperfect model and can mistake
+some signal for noise (and vice versa).
+
+The practical impact is that smoothing is possible
+when analyzing historical data
+but impossible for "real-time" data,
+that is, data you're observing moment by moment, day by day,
+week by week, and so forth.
+For the real-time data, you are limited to filtering.
+When more data arrives subsequently, the model estimates
+may improve and, in fact, the filtered results may change.
+
+## Plotting Time Series Data {#plotting}
+
+### Base graphics
+Base R includes a `plot` function for time series data.
+The function is quick-and-easy,
+but I find it awkward to adjust the plot's appearance.
+
+```{r}
+y <- datasets::Nile
+plot(y)
+```
+
+### ggplot2 with `autoplot`
+Use the `autoplot` function of the ggfortify package
+to plot your time series data using ggplot2,
+the popular graphics package.
+
+```{r}
+library(ggfortify)
+
+y <- datasets::Nile
+autoplot(y)
+```
+
+The result of `autoplot` is a ggplot2 object,
+so you can easily customize the plot using ggplot2 functions.
+
+```{r}
+autoplot(y, ts.colour = "red") +
+  ggtitle("Nile river data") +
+  xlab("Year") + ylab("Annual flow") +
+  theme_linedraw()
+```
+
+### Plotting multivariate time series
+Both `plot` and `autoplot` handle multivariate time series data.
+We can use the `airquality` built-in dataset to illustrate
+(after converting it to time series data).
+
+```{r}
+y <- as.ts(airquality[ , 1:4])
+```
+
+```{r}
+plot(y)
+```
+
+```{r}
+autoplot(y)
+```
+
 ## Online materials
-R code examples are available on a
-public Github repository.
+R code examples are available in a public Github repository.
 
 > https://github.com/pteetor/StateSpaceRecipes

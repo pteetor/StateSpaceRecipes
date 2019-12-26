@@ -26,8 +26,7 @@ $\lambda_{0}$                Initial level of $\lambda$
 You want to build a local linear trend model of your data.
 
 ### Solution {-}
-Estimate the parameters
-by calling `StructTS` with `type="trend"`.
+Estimate the parameters by calling `StructTS` with `type="trend"`.
 
 ```{r, eval=FALSE}
 struct <- StructTS(y, type="trend")
@@ -268,14 +267,50 @@ see [Diagnosing a Regression Model, Fixed Coefficients](#diagnoseRegressionFixed
 For an example of smoothing with the `dlm` package,
 see [Smoothing With a Regression Model, Fixed Coefficients](#smoothRegressionFixed).
 
-
 ## Filtering With a Local Linear Trend Model
 
 ### Problem {-}
+You want to *filter* your time series data
+(that is, remove the noise) using the local linear trend model
+created by `StructTS`.
 
 ### Solution {-}
 
+The `KalmanRun` function can filter your data
+using the state-space model created by `StructTS`.
+
+```{r, eval=FALSE}
+filt <- KalmanRun(y, struct)
+```
+
 ### Example {-}
+This code estimates a local linear trend model for the Nile data,
+constructs the filtered result, and dumps the result.
+
+```{r, eval=TRUE}
+y <- datasets::Nile
+
+struct <- StructTS(y, type="trend")
+if (struct$code != 0) stop("optimizer did not converge")
+
+filt <- KalmanRun(y, struct$model)
+str(filt)
+```
+
+A plot below illustrates the effects of filtering the Nile River data.
+
+```{r, eval=TRUE, echo=FALSE, fig.pos="h"}
+## ALT_COLOR = "red"
+## ALT_STYLE = "dashed"
+
+both = cbind(y=y, filtered=filt$states[,1])
+plot(both, plot.type="single",
+     col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE),
+     main="Filtering a Local Linear Trend Model",
+     ylab="Annual Flow" )
+legend("topright", c("original", "filtered"),
+       col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE) )
+```
 
 ### Discussion {-}
 
