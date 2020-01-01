@@ -234,5 +234,3 @@ plot(both, plot.type="single",
 
 
 ## Filtering With a Regression Model, Fixed Coefficients
-
-## Plotting a Regression Model, Fixed Coefficients

@@ -30,8 +30,4 @@ You can write citations, too. For example, we are using the **bookdown** package
 
 ## Filtering With an XXX Model
 
-## Plotting Smoothed or Filtered Results with an XXX Model
-
 ## Forecasting with an XXX Model
-
-## Plotting Forecasted Values with an XXX Model

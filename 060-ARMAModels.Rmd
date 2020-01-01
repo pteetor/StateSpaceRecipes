@@ -8,8 +8,4 @@
 
 ## Filtering With an ARMA Model
 
-## Plotting Filtered or Smoothed Results with an ARMA Model
-
 ## Forecasting with an ARMA Model
-
-## Plotting Forecasted Values with an ARMA Model

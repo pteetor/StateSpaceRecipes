@@ -320,9 +320,4 @@ legend("topright", c("original", "filtered"),
 
 ### See Also {-}
 
-
-## Plotting Smoothed or Filtered Results with a Local Linear Trend Model
-
 ## Forecasting with a Local Linear Trend Model
-
-## Plotting Forecasted Values with a Local Linear Trend Model
