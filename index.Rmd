@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
-bibliography: [book.bib, packages.bib]
+bibliography: [articles.bib, books.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
 github-repo: pteetor/StateSpaceRecipes
@@ -46,7 +46,7 @@ so I put together these recipes.
 
 This is not a tutorial for state-space models.
 For a general introduction to state-space modeling,
-I recommend the book by Commandeur and Koopman[^CommandeurKoopman2007].
+I recommend the book by Commandeur and Koopman [@CommandeurKoopman2007].
 
 In these notes, I use the `StructTS` function
 to create the simpler models,
@@ -54,14 +54,14 @@ and I use the `dlm` package
 for more complicated models.
 There isn't room here to cover other R packages.
 If you're interested in a survey of state-space packaqes for R,
-I recommend the excellent review by Tusell[^Tusell2011].
+I recommend the excellent review by Tusell [@Tusell2011].
 
 ## The Software
 Packages used in this monograph include
 
 -------------------------  -----------------------------------------------
 `dlm`                      State-space modeling
-`ggplot2' and `ggfortify`  Plotting time series data
+`ggplot2` and `ggfortify`  Plotting time series data
 `magrittr`                 Provides the convenient "pipe" operator (`%>%`)
 `xts` and `zoo`            Tools for time series data
 -------------------------  -----------------------------------------------
@@ -69,7 +69,7 @@ Packages used in this monograph include
 ### The StructTS function
 R includes a function, `StructTS`, which can quickly and easily estimate
 the parameters of simple state-space models
-such as the *local level* model or the *local linear trend* model.[^Ripley2002]
+such as the *local level* model or the *local linear trend* model [@Ripley2002].
 
 `StructTS` is one function in a group of functions
 which, together, provide many features of state-space modeling.
@@ -86,11 +86,11 @@ makeARIMA       Create state-space model equivalent to ARIMA model
 
 ### The dlm package
 For the advanced recipes,
-I use the `dlm` package originally created by Giovanni Petris.[^Petris2010]
+I use the `dlm` package originally created by Giovanni Petris [^Petris2010].
 The package is very well documented,
 and Petris has even written a book regarding state-space models in general
-and the `dlm` package in particular.[^PPC2009]
-There is also an overview written by Petris and Petrone[^PetrisPetrone2011]
+and the `dlm` package in particular [@petris2009].
+There is also an overview written by Petris and Petrone [@PetrisPetrone2011]
 which discusses several R packages with an emphasis on the `dlm` package.
 
 The package contains many useful functions.

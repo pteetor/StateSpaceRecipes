@@ -1,4 +1,4 @@
-# Appendices {-}
+# Appendices
 
 ## Random Walk Model with dlm {#randomWalkWithDLM}
 
@@ -82,3 +82,118 @@ model <- buildRandomWalk(mle$par)
 cat("Transitional variance:", model$W, "\n",
     "Initial level:", model$m0, "\n")
 ```
+
+## Local Level Model with dlm {#localLevelModelWithDLM}
+
+The chapter on the [local level model](#localLevelModel)
+uses the `StructTS` function because that's the easiest way to estimate the model parameters.
+Sometimes, however, you might want to use the `dlm` package instead,
+even though it's a bit more work.
+Why would one do that?
+The local level model might be your first step in model building,
+leading to more complicate models.
+Or you might want to bootstrap your model, which is more easily done using `dlm`.
+Or you might want to combine a local level model with another model
+using the model "addition" feature of `dlm`.
+
+The `dlm` authors refer to the local level model as
+the _random walk with noise_ model:
+the underlying level follows a random walk,
+and our observation of it is polluted by noise.
+
+Mathematically, the local level models used by the `StructTS` function and the `dlm` package
+are the same,
+but they use different variable names
+and slightly different notational conventions.
+
+\begin{eqnarray*}
+  Y_{t} & = & \mu_{t} + v_{t}, \qquad v_{t} \sim N(0, V) \\
+  \mu_{t} & = & \mu_{t-1} + w_{t}, \qquad w_{t} \sim N(0, W)
+\end{eqnarray*}
+
+Under these conventions,
+we observe $Y_{t}$ (not $y_{t}$),
+and the variances of the error terms are generalized to be matrices $V$ and $W$.
+
+(*Move to footnote:* Generalizing $V$ and $W$ to matrices will open the door to the multivariate case.)
+
+Following those conventions, the model has these three parameters.
+
+------ ------------------------------------
+ `dV`  Variance of the observation errors
+ `dW`  Variance of the transition errors
+ `m0`  The initial value ($\mu_{0}$)
+------ ------------------------------------
+
+### Estimation {-}
+
+The R code for parameter estimation begins by defining the `buildModPoly1` function
+which can create the needed `dlm` model object from three parameters.
+
+```{r, eval=FALSE}
+buildModPoly1 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2])
+  m0 <- v[3]
+  dlmModPoly(1, dV=dV, dW=dW, m0=m0)
+}
+```
+
+The R function itself takes one parameter, a 3-element vector,
+into which the model parameters are packed.
+The first two parameters are log-variance, not variance,
+to prevent the optimizer from exploring negative values for variance.
+
+To start, we need some reasonable guesses at the parameters.
+They don't need to be perfect, but being in the right ballpark is useful.
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+```
+
+The `dlmMLE` function finds the maximum likelihood estimate of the parameters,
+starting with our reasonable guesses and
+repeatedly calling our `buildModPoly1` until it converges on the MLE solution.
+Always check for convergence.
+
+```{r, eval=FALSE}
+parm <- c(log(varGuess), log(varGuess), mu0Guess)
+mle <- dlmMLE(y, parm=parm, buildModPoly1)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+From the MLE parameter estimates, we can build the final model.
+```{r, eval=FALSE}
+model <- buildModPoly1(mle$par)
+```
+
+### Example {-}
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+
+buildModPoly1 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2])
+  m0 <- v[3]
+  dlmModPoly(1, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+
+parm <- c(log(varGuess), log(varGuess), mu0Guess)
+
+mle <- dlmMLE(y, parm=parm, buildModPoly1)
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModPoly1(mle$par)
+
+cat("Observational variance:", model$V, "\n",
+    "Transitional variance:", model$W, "\n",
+    "Initial level:", model$m0, "\n")
+```
+

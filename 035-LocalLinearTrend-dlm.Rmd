@@ -1,0 +1,189 @@
+# Local Linear Trend Model: dlm Package {#localLinearTrendDLM}
+The *local linear trend model* builds on the [local level model](#localLevel).
+It adds a time-varying trend, $\nu_{t}$, that follows a random walk.
+As before, we observe _y_, which is the underlying level plus noise.
+
+\begin{eqnarray*}
+  y_{t} & = & \mu_{t} + \epsilon_{t}, \qquad \epsilon_{t} \sim N(0, \sigma_{\epsilon}^{2}) \\
+  \mu_{t} & = & \mu_{t-1} + \nu_{t-1} + \xi_{t}, \qquad \xi_{t} \sim N(0, \sigma_{\xi}^{2}) \\
+  \nu_{t} & = & \nu_{t-1} + \zeta_{t}, \qquad \zeta_{t} \sim N(0, \sigma_{\zeta}^{2})
+\end{eqnarray*}
+
+This model has five parameters.
+
+---------------------------  --------------------------------------------
+$\sigma_{\epsilon}^{2}$      Variance of observation errors, $\epsilon$
+$\sigma_{\xi}^{2}$           Variance of transition errors, $\xi$
+$\sigma_{\zeta}^{2}$         Variance of slope errors, $\zeta$
+$\mu_{0}$                    Initial level of $\mu$
+$\nu_{0}$                    Initial level of $\nu$
+---------------------------  --------------------------------------------
+
+
+## Fitting a Local Linear Trend Model (dlm version)
+
+### Problem {-}
+You want to build a local linear trend model of your data using the dlm package.
+
+### Solution {-}
+The `dlm` documentation refers to this model as the _linear growth model_.
+
+The `dlm` code for estimating a local linear trend model
+begins by defining a function capable of creating the appropriate _dlm_
+model object from five parameters.
+
+```{r, eval=FALSE}
+buildModPoly2 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])
+  m0 <- v[4:5]
+  dlmModPoly(order=2, dV=dV, dW=dW, m0=m0)
+}
+```
+
+Notice that the five model parameters are packed into
+one 5-element R vector.
+
+The `dlmMLE` uses our `buildModPoly2` function
+to find the maximum likelihood estimates (MLE) of the parameters.
+It uses numerical optimization, so always check for convergence.
+
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- 0.0
+
+parm <- c(log(varGuess), log(varGuess), log(varGuess),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, buildModPoly2)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+From the MLE parameters, we can construct the final model object.
+
+```{r, eval=FALSE}
+model <- buildModPoly2(mle$par)
+```
+
+The `model` object contains the estimated parameters (among other things).
+
+------ -------------------------------------------------------
+`V`    Variance of the observations (scalar)
+`W`    Variance of the state variables' error terms (matrix)
+`m0`   Initial values of the state variables (vector)
+------ -------------------------------------------------------
+
+### Example {-}
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+
+buildModPoly2 <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])
+  m0 <- v[4:5]
+  dlmModPoly(order=2, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- 0.0
+
+parm <- c(log(varGuess), log(varGuess), log(varGuess),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, buildModPoly2)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModPoly2(mle$par)
+```
+
+### See Also {-}
+
+## Diagnosing a Local Linear Trend Model (dlm version)
+
+### Problem {-}
+After fitting a local linear trend model using dlm,
+you want to assess the quality of the model.
+
+### Solution {-}
+The `tsdiag` function is a generic function for diagnosing time series models,
+and the `dlm` package has an implementation.
+It produces useful plots for identifying problems in your model.
+
+The diagnostics are based on the posterior distribution defined by the model,
+so call `dlmFilter` first to construct the posterior,
+then apply `tsdiag` to the result.
+
+```{r, eval=FALSE}
+filt <- dlmFilter(y, model)
+tsdiag(filt)
+```
+### Example {-}
+
+### Discussion {-}
+
+### See Also {-}
+
+## Smoothing With a Local Linear Trend Model (dlm version)
+
+### Problem {-}
+After building a local linear trend model using dlm,
+you want to smooth the data;
+that is, remove the noise component.
+
+### Solution {-}
+The `dlm` package provides a function, `dlmSmooth`,
+for smoothing your data based on a model.
+If $y$ is your data
+and `model` is any model created by `dlm`,
+such as the recipes in this monograph,
+then this call will compute the smoothed data.
+
+```{r, eval=FALSE}
+smooth <- dlmSmooth(y, model)
+## smooth$s contains the smoothed values
+```
+
+### Example {-}
+
+### Discussion {-}
+
+### See Also {-}
+
+For an example of diagnosing a model built with the `dlm` package,
+see [Diagnosing a Regression Model, Fixed Coefficients](#diagnoseRegressionFixed).
+
+For an example of smoothing with the `dlm` package,
+see [Smoothing With a Regression Model, Fixed Coefficients](#smoothRegressionFixed).
+
+## Filtering With a Local Linear Trend Model (dlm version)
+
+### Problem {-}
+You want to *filter* your time series data
+(that is, remove the noise) using the local linear trend model
+created by dlm.
+
+### Solution {-}
+
+### Example {-}
+
+### Discussion {-}
+
+### See Also {-}
+
+## Forecasting with a Local Linear Trend Model
+
+### Problem {-}
+
+### Solution {-}
+
+### Example {-}
+
+### Discussion {-}
+
+### See Also {-}
+

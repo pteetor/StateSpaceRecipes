@@ -83,7 +83,7 @@ model <- buildModReg(mle$par)
 ### Example {-}
 
 This example uses an explanatory variable to account for a change in the level of the Nile River.
-The example is taken from the excellent paper by Petris and Petrone.[^PetrisPetrone2011]
+The example is taken from the excellent paper by Petris and Petrone [@PetrisPetrone2011].
 
 The explanatory variable is quite simple.
 It has value 0.0 *before* the Aswan Dam was built
