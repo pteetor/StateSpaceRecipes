@@ -57,6 +57,14 @@ If you're interested in a survey of state-space packaqes for R,
 I recommend the excellent review by Tusell[^Tusell2011].
 
 ## The Software
+Packages used in this monograph include
+
+-------------------------  -----------------------------------------------
+`dlm`                      State-space modeling
+`ggplot2' and `ggfortify`  Plotting time series data
+`magrittr`                 Provides the convenient "pipe" operator (`%>%`)
+`xts` and `zoo`            Tools for time series data
+-------------------------  -----------------------------------------------
 
 ### The StructTS function
 R includes a function, `StructTS`, which can quickly and easily estimate

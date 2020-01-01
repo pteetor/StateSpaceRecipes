@@ -54,89 +54,12 @@ print(model)
 
 ### Discussion {-}
 
-### Alt. Solution {-}
-
-We can also fit a random walk using the dlm package.
-The code for estimating parameters is very similar to
-the code for the local level model.
-The difference is that we force $V$, the variance of the observations,
-to be zero.
-
-We define a function, `buildRandomWalk`, that builds a `dlm` model object
-from two input parameters, `dW` and `m0`.
-The parameters are packed into a single, 2-element vector.
-
-```{r, eval=FALSE}
-buildRandomWalk <- function(v) {
-  dW <- exp(v[1])
-  m0 <- v[2]
-  dlmModPoly(order=1, dV=0, dW=dW, m0=m0)
-}
-```
-
-The function calls the `dlmModPoly` function from `dlm` to create the model object.
-
-We need initial guesses for the model parameters.
-
-```{r, eval=FALSE}
-varGuess <- var(diff(y), na.rm=TRUE)
-mu0Guess <- as.numeric(y[1])
-```
-
-Next we call the `dlmMLE` function to estimate the MLE parameters
-using numerical optimzation.
-Always check for convergence.
-
-```{r, eval=FALSE}
-parm <- c(log(varGuess), mu0Guess)
-mle <- dlmMLE(y, parm=parm, buildRandomWalk)
-if (mle$convergence != 0) stop(mle$message)
-```
-
-From the MLE estimates, we can build the final `dlm` model.
-
-```{r, eval=FALSE}
-model <- buildRandomWalk(mle$par)
-```
-
-We can extract the estimated parameters from `model`, the returned object.
-
----------- -----------------------------------
-`model$W`  Variance of the random walk errors
-`model$m0` Initial level
----------- -----------------------------------
-
-### Alt. Example {-}
-
-```{r, eval=TRUE}
-library(dlm)
-
-y <- datasets::Nile
-
-buildRandomWalk <- function(v) {
-  dW <- exp(v[1])
-  m0 <- v[2]
-  dlmModPoly(order=1, dV=0, dW=dW, m0=m0)
-}
-
-varGuess <- var(diff(y), na.rm=TRUE)
-mu0Guess <- as.numeric(y[1])
-
-parm <- c(log(varGuess), mu0Guess)
-mle <- dlmMLE(y, parm=parm, buildRandomWalk)
-if (mle$convergence != 0) stop("Optimizer did not converge")
-
-model <- buildRandomWalk(mle$par)
-
-cat("Transitional variance:", model$W, "\n",
-    "Initial level:", model$m0, "\n")
-```
-
 ### See Also {-}
 
 ## Diagnosing a Random Walk Model
 
 ### Problem {-}
+You want to evaluate a random walk model.
 
 ### Solution {-}
 The `tsdiag` function creates diagnostic plots
@@ -157,16 +80,17 @@ tsdiag(model)
 
 ### Discussion {-}
 
-### Alt. Solution {-}
-
 ### See Also {-}
-
-## Smoothing With a Random Walk Model
-
-## Filtering With a Random Walk Model
-
-## Plotting Filtered or Smoothed Results with a Random Walk Model
 
 ## Forecasting with a Random Walk Model
 
-## Plotting Forecasted Values with a Random Walk Model
+### Problem {-}
+You want to forecast a time series using the random walk model.
+
+### Solution {-}
+
+### Example {-}
+
+### Discussion {-}
+
+### See Also {-}

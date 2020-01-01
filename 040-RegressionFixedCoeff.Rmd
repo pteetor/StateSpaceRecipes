@@ -1,10 +1,135 @@
 # Regression Model, Fixed Coefficients {#regressionFixed}
 
+This model adds an explanatory varible with fixed coefficient $\lambda$.
+
+(*Move to footnote:* In the next section, we will consider models with time-varying coefficients.
+
+The coefficient is "fixed" in the sense that it does not vary over time.
+
+\begin{eqnarray*}
+  y_{t} & = & \mu_{t} + \lambda x_{t} + \epsilon_{t}, \qquad \epsilon_{t} \sim N(0, \sigma_{\epsilon}^{2}) \\
+  \mu_{t} & = & \mu_{t-1} + \xi_{t}, \qquad \xi_{t} \sim N(0,\sigma_{\xi}^{2}) \\
+\end{eqnarray*}
+
+The state vector is $\alpha_{t} = (\mu_{t}, \lambda)^{\top}$.
+
+This is a four-parameter model.
+
+-----------------------  ---------------------------------------------
+$\sigma_{\epsilon}^2$    Variance of observation errors, $\epsilon$
+$\sigma_{\xi}^2$         Variance of transition errors, $\xi$
+$\mu_{0}$                Initial level of $\mu$
+$\lambda$                Coefficient of $x$
+-----------------------  ---------------------------------------------
+
 ## Fitting a Regression Model, Fixed Coefficients
+
+### Problem {-}
+
+### Solution {-}
+
+To estimate the model parameters, we first
+define a function that constructs a `dlm` model object from four parameters.
+A key fact here is that we set the second component of $W$ to be zero.
+That forces `dlm` to keep the second state variable, $\lambda$, constant.
+
+```{r, eval=FALSE}
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)     # Note zero variance for lambda
+  m0 <- v[3:4]
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+```
+
+The argument to the function is a 4-element vector
+containing the model parameters.
+
+* `v[1]` = Log of $\sigma_{\epsilon}^2$
+* `v[2]` = Log of $\sigma_{\xi}^2$
+* `v[3]` = Initial level for $\mu$
+* `v[4]` = Value of $\lambda$
+
+We need guesses for the parameters.
+Fortunately, reasonable guess will do.
+
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambdaGuess <- mean(diff(y), na.rm=TRUE)
+```
+
+The `dlmMLE` function uses numerical optimzation
+to find the maximum likelihood estimates (MLE) for the model parameters.
+Starting with our reasonable guesses for parameters,
+it will repeatedly call our `buildModReg` function,
+calculate the model's likelihood, and find the MLE values.
+Always check for convergence.
+
+```{r, eval=FALSE}
+parm <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+The function returns the final parameter values, not the final model,
+so we construct the final model ourselves from those parameters.
+
+```{r, eval=FALSE}
+model <- buildModReg(mle$par)
+```
+
+### Example {-}
+
+This example uses an explanatory variable to account for a change in the level of the Nile River.
+The example is taken from the excellent paper by Petris and Petrone.[^PetrisPetrone2011]
+
+The explanatory variable is quite simple.
+It has value 0.0 *before* the Aswan Dam was built
+and value 1.0 *after* the dam was built.
+The dam had a significant effect on the river's level,
+so it makes sense as an explanatory variable.
+
+Here, the explanatory variable is called $x$.
+We can construct it "manually" from our knowledge of the data:
+the dam was built after the 27th observation.
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)
+  m0 <- v[3:4]
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambdaGuess <- mean(diff(y), na.rm=TRUE)
+
+parm <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
+### Discussion {-}
+
+### See Also {-}
 
 ## Diagnosing a Regression Model, Fixed Coefficients {#diagnoseRegressionFixed}
 
 ### Problem {-}
+You estimated the parameters of a regression model
+with a fixed regressor.
+Now you want diagnostic plots for the model.
 
 ### Solution {-}
 
@@ -47,12 +172,9 @@ tsdiag(filt,
        main="Diagnostics for Regression Model" )
 ```
 
-
 ### Discussion {-}
 
 ### See Also {-}
-
-
 
 ## Smoothing With a Regression Model, Fixed Coefficients {#smoothRegressionFixed}
 
