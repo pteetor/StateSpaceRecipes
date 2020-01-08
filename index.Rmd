@@ -89,7 +89,7 @@ For the advanced recipes,
 I use the `dlm` package originally created by Giovanni Petris [^Petris2010].
 The package is very well documented,
 and Petris has even written a book regarding state-space models in general
-and the `dlm` package in particular [@petris2009].
+and the `dlm` package in particular [@Petris2009].
 There is also an overview written by Petris and Petrone [@PetrisPetrone2011]
 which discusses several R packages with an emphasis on the `dlm` package.
 
@@ -129,17 +129,17 @@ My goal was to let you copy the recipe, substitute your data for the Nile River 
 and try the recipe for yourself.
 
 ## Smoothing Versus Filtering {#smoothingVersusFiltering}
-Every state-space model identifies a noise component in your data,
-and there are smoothing and filtering algorithms that
-can remove the noise.
-The difference between those algorithms is what they assume.
+Every state-space model identifies a noise component in your data.
+There are two algorithms for removing the noise from your data: *smoothing* and *filtering*.
+The difference between them is what they assume.
 
 Suppose you have a time series with observations
 at times $t_0$ through $t_T$,
 
 $$t_0, t_1, ..., t_T$$
 
-and you want to remove the noise from some intermediate point, say $t_i$.
+and you want to remove the noise from the data,
+including some intermediate point, say $t_i$.
 
 $$t_0, t_1, ..., t_i, ..., t_T$$
 
@@ -148,7 +148,7 @@ start to finish, from $t_0$ through $t_T$.
 
 *Filtering* assumes only the data from $t_0$ through $t_i$
 is available;
-that is, you've not yet seen the data from $t_i+1$ through $t_T$.
+that is, you have not yet seen the data from $t_i+1$ through $t_T$.
 
 Because smoothing has the entire dataset available,
 it can estimate the best model and, hence,

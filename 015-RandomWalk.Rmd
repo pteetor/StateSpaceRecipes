@@ -25,10 +25,6 @@ $\sigma_{\xi}^2$    Variance of the observational errors, $\xi_{t}$
 $\mu_{0}$           Initial level of $\mu$
 ------------------  -------------------------------------------------
 
-The R software always assumes that $y$ has an error term.
-We get around that by forcing its variance to be zero,
-effectively eliminating it.
-
 ## Fitting a Random Walk Model
 
 ### Problem {-}
@@ -53,6 +49,9 @@ print(model)
 ```
 
 ### Discussion {-}
+The R software always assumes that $y$ has an error term.
+We get around that by forcing its variance to be zero,
+effectively eliminating it.
 
 ### See Also {-}
 

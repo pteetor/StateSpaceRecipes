@@ -23,7 +23,8 @@ $\nu_{0}$                    Initial level of $\nu$
 ## Fitting a Local Linear Trend Model (dlm version)
 
 ### Problem {-}
-You want to build a local linear trend model of your data using the dlm package.
+You want to build a local linear trend model of your data,
+using the special features of the dlm package.
 
 ### Solution {-}
 The `dlm` documentation refers to this model as the _linear growth model_.
@@ -132,8 +133,8 @@ tsdiag(filt)
 
 ### Problem {-}
 After building a local linear trend model using dlm,
-you want to smooth the data;
-that is, remove the noise component.
+you want to [smooth](#smoothingVersusFiltering) the data;
+that is, remove the noise component from the entire dataset.
 
 ### Solution {-}
 The `dlm` package provides a function, `dlmSmooth`,
@@ -163,9 +164,9 @@ see [Smoothing With a Regression Model, Fixed Coefficients](#smoothRegressionFix
 ## Filtering With a Local Linear Trend Model (dlm version)
 
 ### Problem {-}
-You want to *filter* your time series data
-(that is, remove the noise) using the local linear trend model
-created by dlm.
+After building a local linear trend model using dlm,
+you want to [filter](#smoothingVersusFiltering) your time series data;
+that is, you want to remove the noise from the data observed so far.
 
 ### Solution {-}
 
@@ -178,6 +179,8 @@ created by dlm.
 ## Forecasting with a Local Linear Trend Model
 
 ### Problem {-}
+You want to forecast a time series
+using a local linear trend model built with dlm.
 
 ### Solution {-}
 

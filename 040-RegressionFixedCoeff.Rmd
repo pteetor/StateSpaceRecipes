@@ -22,66 +22,56 @@ $\mu_{0}$                Initial level of $\mu$
 $\lambda$                Coefficient of $x$
 -----------------------  ---------------------------------------------
 
-## Fitting a Regression Model, Fixed Coefficients
+## Fitting a Regression Model, Fixed Coefficients {#fitRegressionFixed}
 
 ### Problem {-}
+You have time series data and a regressor variable (also a time series).
+You want to build a regression model of the time series,
+assuming the regression coefficient is fixed.
 
 ### Solution {-}
+The solution will follow these steps.
 
-To estimate the model parameters, we first
-define a function that constructs a `dlm` model object from four parameters.
-A key fact here is that we set the second component of $W$ to be zero.
-That forces `dlm` to keep the second state variable, $\lambda$, constant.
+1. Define a function that constructs a dlm model object
+   from the four model parameters
+   ($\sigma_{\epsilon}^2$, $\sigma_{\xi}^2$, $\mu_{0}$, and $\lambda$).
+1. Choose some reasonable, initial guesses for the parameters.
+1. Use the `dlmMLE` function
+   to find the maximum likelihood estimates (MLE) for the model parameters.
+1. Using those MLE parameters, construct the final dlm model object
+   (using function you wrote in step #1).
+
+This code embodies the solution.
+The Discussion, below, unpacks and explains the logic.
 
 ```{r, eval=FALSE}
+#
+# Assume here:
+#   y = time series data
+#   x = regressor (also a time series)
+#
+
+# Argument v is a 4-element vector of model parameters
 buildModReg <- function(v) {
   dV <- exp(v[1])
   dW <- c(exp(v[2]), 0)     # Note zero variance for lambda
   m0 <- v[3:4]
   dlmModReg(x, dV=dV, dW=dW, m0=m0)
 }
-```
 
-The argument to the function is a 4-element vector
-containing the model parameters.
-
-* `v[1]` = Log of $\sigma_{\epsilon}^2$
-* `v[2]` = Log of $\sigma_{\xi}^2$
-* `v[3]` = Initial level for $\mu$
-* `v[4]` = Value of $\lambda$
-
-We need guesses for the parameters.
-Fortunately, reasonable guess will do.
-
-```{r, eval=FALSE}
 varGuess <- var(diff(y), na.rm=TRUE)
 mu0Guess <- as.numeric(y[1])
 lambdaGuess <- mean(diff(y), na.rm=TRUE)
-```
 
-The `dlmMLE` function uses numerical optimzation
-to find the maximum likelihood estimates (MLE) for the model parameters.
-Starting with our reasonable guesses for parameters,
-it will repeatedly call our `buildModReg` function,
-calculate the model's likelihood, and find the MLE values.
-Always check for convergence.
-
-```{r, eval=FALSE}
-parm <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
-mle <- dlmMLE(y, parm=parm, build=buildModReg)
+guesses <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
+mle <- dlmMLE(y, parm=guesses, build=buildModReg)
 
 if (mle$convergence != 0) stop(mle$message)
-```
 
-The function returns the final parameter values, not the final model,
-so we construct the final model ourselves from those parameters.
-
-```{r, eval=FALSE}
 model <- buildModReg(mle$par)
 ```
 
 ### Example {-}
-
 This example uses an explanatory variable to account for a change in the level of the Nile River.
 The example is taken from the excellent paper by Petris and Petrone [@PetrisPetrone2011].
 
@@ -120,7 +110,69 @@ if (mle$convergence != 0) stop(mle$message)
 model <- buildModReg(mle$par)
 ```
 
-### Discussion {-}
+### Discussion
+The first step is to 
+define a function that constructs a `dlm` model object from the four parameters.
+A key fact here is that we set the second component of $W$ to be zero.
+That forces `dlm` to keep the second state variable, $\lambda$, constant.
+
+```{r, eval=FALSE}
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)     # Note zero variance for lambda
+  m0 <- v[3:4]
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+```
+
+The argument to the function is a 4-element vector
+containing the model parameters.
+
+* `v[1]` = Log of $\sigma_{\epsilon}^2$
+* `v[2]` = Log of $\sigma_{\xi}^2$
+* `v[3]` = Initial level for $\mu$
+* `v[4]` = Value of $\lambda$
+
+We need reasonable guesses for the parameters,
+in order to kick-start the parameter optimization.
+Here are my choices,
+but really any reasonable choices will work OK.
+
+-----------------------  ---------------------------------------------
+$\sigma_{\epsilon}^2$    Variance of differenced $y$ data
+$\sigma_{\xi}^2$         Some fraction of $\sigma_{\epsilon}^2$
+$\mu_{0}$                First observed value of $y$: `y[0]`
+$\lambda$                Average of the differenced $y$ data
+-----------------------  ---------------------------------------------
+
+This code implements my guesses.
+
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambdaGuess <- mean(diff(y), na.rm=TRUE)
+```
+
+The `dlmMLE` function uses numerical optimzation
+to find the maximum likelihood estimates (MLE) for the model parameters.
+Starting with our reasonable guesses for parameters,
+it will repeatedly call our `buildModReg` function,
+calculate the model's likelihood, and find the MLE values.
+Always check for convergence.
+
+```{r, eval=FALSE}
+guesses <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
+mle <- dlmMLE(y, parm=guesses, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+The function returns the MLE *parameter values*, not the MLE *model*,
+so we construct the model from those parameters.
+
+```{r, eval=FALSE}
+model <- buildModReg(mle$par)
+```
 
 ### See Also {-}
 
@@ -134,11 +186,12 @@ Now you want diagnostic plots for the model.
 ### Solution {-}
 
 ### Example {-}
-This code assumes that `model` was fit by the recipe, above,
-for estimating a regression with fixed coefficients.
+This code assumes that
 
-(*Move to footnote:* The code also assumes that `x` and `y`
- are the regressor and time series data, respectively, as in that recipe.)
+* `model` was fit by the [recipe](#fitRegressionFixed), above,
+  for estimating a regression with fixed coefficients
+* `y` is your time series data
+* [QUESTION: What about `x`?]
 
 It produces the diagnostic plots for the model.
 
@@ -152,8 +205,7 @@ buildModReg <- function(v) {
   dV <- exp(v[1])
   dW <- c(exp(v[2]), 0)
   m0 <- c(v[3], v[4])
-  dlmModReg(x, dV=dV, dW=dW, m0=m0)
-}
+  dlmModReg(x, dV=dV, dW=dW, m0=m0) }
 
 diffVar <- var(diff(y), na.rm=TRUE)
 INIT_OBS_LOG_VAR <- log(diffVar)
@@ -179,6 +231,9 @@ tsdiag(filt,
 ## Smoothing With a Regression Model, Fixed Coefficients {#smoothRegressionFixed}
 
 ### Problem {-}
+You built a regression model of your time series data, using a fixed coefficient.
+Now you want to [smooth](#smoothingVersusFiltering) the data;
+that is, remove the noise from the entire dataset.
 
 ### Solution {-}
 
@@ -189,39 +244,20 @@ for estimating a regression with fixed coefficients.
 (*Move to footnote:* The example code also assumes that `x` and `y`
  are the predictor and the time series data, respectively, from that recipe.)
 
-It smooths the original data based on that model,
-then plots both the data and smoothed values.
-```{r, eval=TRUE, echo=FALSE}
-library(dlm)
+It smooths the original data based on that model.
 
-y <- datasets::Nile
-x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
-
-buildModReg <- function(v) {
-  dV <- exp(v[1])
-  dW <- c(exp(v[2]), 0)
-  m0 <- c(v[3], v[4])
-  dlmModReg(x, dV=dV, dW=dW, m0=m0)
-}
-
-diffVar <- var(diff(y), na.rm=TRUE)
-INIT_OBS_LOG_VAR <- log(diffVar)
-INIT_TRANS_LOG_VAR <- log(diffVar / 5)
-parm <- c(INIT_OBS_LOG_VAR, INIT_TRANS_LOG_VAR, y[1], 0.0)
-mle <- dlmMLE(y, parm=parm, build=buildModReg)
-
-if (mle$convergence != 0) stop(mle$message)
-
-model <- buildModReg(mle$par)
-```
-
-```{r, eval=TRUE, echo=FALSE, fig.pos="h"}
+```{r, eval=TRUE, echo=TRUE}
 smooth <- dlmSmooth(y, model)
 
 ## The final, smoothed data is this linear combination
 smoothed <- smooth$s[-1,1] + x*smooth$s[-1,2]
 
 both <- cbind(y=y, smoothed=smoothed)
+```
+
+We can plot the original data and the smoothed values.
+
+```{r, eval=TRUE, echo=TRUE, fig.pos="h"}
 plot(both, plot.type="single",
      lty=c("solid", ALT_STYLE), col=c("black", ALT_COLOR),
      main="Smoothing a Regression Model",
