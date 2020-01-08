@@ -47,6 +47,8 @@ The function returns a list that includes these elements.
 `struct$code`     Convergence code from optimizer, zero is good, non-zero is bad
 ----------------- -----------------------------------------------------------------------------
 
+### Discussion {-}
+
 ### Example {-}
 This example constructs a local level model for the Nile data.
 ```{r, eval=TRUE}
@@ -62,11 +64,20 @@ cat("Transitional variance:", struct$coef["level"], "\n",
     "Initial level:", struct$model0$a, "\n")
 ```
 
-### Discussion {-}
-
 ### See Also {-}
 
 ## Diagnosing a Local Level Model
+
+### Problem {-}
+After fitting a local level model, you want to assess the quality of the fit.
+
+### Solution {-}
+
+### Discussion {-}
+
+### Example {-}
+
+### See Also {-}
 
 ## Smoothing With a Local Level Model
 
@@ -76,12 +87,37 @@ you want to [smooth](#smoothingVersusFiltering) your data.
 
 ### Solution {-}
 
-### Example {-}
-
 ### Discussion {-}
+
+### Example {-}
 
 ### See Also {-}
 
 ## Filtering With a Local Level Model
 
+### Problem {-}
+Using a local level model, you want to [filter](#smoothingVersusFiltering)
+the time series data.
+
+### Solution {-}
+
+### Discussion {-}
+
+### Example {-}
+
+### See Also {-}
+
+
 ## Forecasting with a Local Level Model
+
+### Problem {-}
+Using a local level model, you want to forecast the next values in your time series.
+
+### Solution {-}
+
+### Discussion {-}
+
+### Example {-}
+
+### See Also {-}
+

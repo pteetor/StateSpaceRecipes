@@ -19,7 +19,6 @@ $\mu_{0}$                    Initial level of $\mu$
 $\nu_{0}$                    Initial level of $\nu$
 ---------------------------  --------------------------------------------
 
-
 ## Fitting a Local Linear Trend Model
 
 ### Problem {-}
@@ -40,6 +39,7 @@ if (struct$code != 0) stop("optimizer did not converge")
 `struct$model0`    List of initial state and levels
 ----------------   -----------------------------------
 
+### Discussion {-}
 
 ### Example {-}
 This code constructs a local linear trend model for the Nile River data.
@@ -68,8 +68,6 @@ That makes for a lousy example,
 but its a good reminder so check and interpret the MLE parameters carefully.
 They might be telling you a story.
 
-### Discussion {-}
-
 ### See Also {-}
 
 (Ref: dlm implementation)
@@ -88,6 +86,8 @@ that are useful for evaluating your StructTS model.
 tsdiag(struct)
 ```
 
+### Discussion {-}
+
 ### Example {-}
 This code constructs a local linear trend model for the Nile data,
 then produces diagnostics plots.
@@ -100,8 +100,6 @@ if (struct$code != 0) stop("optimizer did not converge")
 
 tsdiag(struct)
 ```
-
-### Discussion {-}
 
 ### See Also {-}
 
@@ -121,6 +119,8 @@ based on a state-space model created by `StructTS`.
 ```{r, eval=FALSE}
 smoothed <- tsSmooth(struct)
 ```
+
+### Discussion {-}
 
 ### Example {-}
 This code estimates a local linear trend model for the Nile data,
@@ -149,8 +149,6 @@ legend("topright", c("original", "smoothed"),
        col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE) )
 ```
 
-### Discussion {-}
-
 ### See Also {-}
 
 (Ref: dlm version)
@@ -176,6 +174,8 @@ using the state-space model created by `StructTS`.
 ```{r, eval=FALSE}
 filt <- KalmanRun(y, struct)
 ```
+
+### Discussion {-}
 
 ### Example {-}
 This code estimates a local linear trend model for the Nile data,
@@ -206,8 +206,19 @@ legend("topright", c("original", "filtered"),
        col=c("black", ALT_COLOR), lty=c("solid", ALT_STYLE) )
 ```
 
-### Discussion {-}
-
 ### See Also {-}
 
 ## Forecasting with a Local Linear Trend Model
+
+### Problem {-}
+Using your local linear trend model,
+you want to forecast the next values in your time series.
+
+### Solution {-}
+
+### Discussion {-}
+
+### Example {-}
+
+### See Also {-}
+

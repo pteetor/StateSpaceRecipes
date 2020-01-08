@@ -71,45 +71,6 @@ if (mle$convergence != 0) stop(mle$message)
 model <- buildModReg(mle$par)
 ```
 
-### Example {-}
-This example uses an explanatory variable to account for a change in the level of the Nile River.
-The example is taken from the excellent paper by Petris and Petrone [@PetrisPetrone2011].
-
-The explanatory variable is quite simple.
-It has value 0.0 *before* the Aswan Dam was built
-and value 1.0 *after* the dam was built.
-The dam had a significant effect on the river's level,
-so it makes sense as an explanatory variable.
-
-Here, the explanatory variable is called $x$.
-We can construct it "manually" from our knowledge of the data:
-the dam was built after the 27th observation.
-
-```{r, eval=TRUE}
-library(dlm)
-
-y <- datasets::Nile
-x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
-
-buildModReg <- function(v) {
-  dV <- exp(v[1])
-  dW <- c(exp(v[2]), 0)
-  m0 <- v[3:4]
-  dlmModReg(x, dV=dV, dW=dW, m0=m0)
-}
-
-varGuess <- var(diff(y), na.rm=TRUE)
-mu0Guess <- as.numeric(y[1])
-lambdaGuess <- mean(diff(y), na.rm=TRUE)
-
-parm <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
-mle <- dlmMLE(y, parm=parm, build=buildModReg)
-
-if (mle$convergence != 0) stop(mle$message)
-
-model <- buildModReg(mle$par)
-```
-
 ### Discussion
 The first step is to 
 define a function that constructs a `dlm` model object from the four parameters.
@@ -174,6 +135,45 @@ so we construct the model from those parameters.
 model <- buildModReg(mle$par)
 ```
 
+### Example {-}
+This example uses an explanatory variable to account for a change in the level of the Nile River.
+The example is taken from the excellent paper by Petris and Petrone [@PetrisPetrone2011].
+
+The explanatory variable is quite simple.
+It has value 0.0 *before* the Aswan Dam was built
+and value 1.0 *after* the dam was built.
+The dam had a significant effect on the river's level,
+so it makes sense as an explanatory variable.
+
+Here, the explanatory variable is called $x$.
+We can construct it "manually" from our knowledge of the data:
+the dam was built after the 27th observation.
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- c(exp(v[2]), 0)
+  m0 <- v[3:4]
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambdaGuess <- mean(diff(y), na.rm=TRUE)
+
+parm <- c(log(varGuess), log(varGuess/5), mu0Guess, lambdaGuess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
 ### See Also {-}
 
 ## Diagnosing a Regression Model, Fixed Coefficients {#diagnoseRegressionFixed}
@@ -184,6 +184,8 @@ with a fixed regressor.
 Now you want diagnostic plots for the model.
 
 ### Solution {-}
+
+### Discussion {-}
 
 ### Example {-}
 This code assumes that
@@ -224,8 +226,6 @@ tsdiag(filt,
        main="Diagnostics for Regression Model" )
 ```
 
-### Discussion {-}
-
 ### See Also {-}
 
 ## Smoothing With a Regression Model, Fixed Coefficients {#smoothRegressionFixed}
@@ -236,6 +236,8 @@ Now you want to [smooth](#smoothingVersusFiltering) the data;
 that is, remove the noise from the entire dataset.
 
 ### Solution {-}
+
+### Discussion {-}
 
 ### Example {-}
 This example assumes that `model` was created by the example, above,
@@ -249,7 +251,7 @@ It smooths the original data based on that model.
 ```{r, eval=TRUE, echo=TRUE}
 smooth <- dlmSmooth(y, model)
 
-## The final, smoothed data is this linear combination
+# Copmute the final, smoothed data using this linear combination
 smoothed <- smooth$s[-1,1] + x*smooth$s[-1,2]
 
 both <- cbind(y=y, smoothed=smoothed)
@@ -264,9 +266,19 @@ plot(both, plot.type="single",
      ylab="Annual Flow" )
 ```
 
+### See Also {-}
+
+## Filtering With a Regression Model, Fixed Coefficients
+
+### Problem {-}
+Using your regression model,
+you want to [filter](#smoothingVersusFiltering) your time series data.
+
+### Solution {-}
+
 ### Discussion {-}
+
+### Example {-}
 
 ### See Also {-}
 
-
-## Filtering With a Regression Model, Fixed Coefficients

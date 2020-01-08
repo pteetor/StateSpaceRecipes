@@ -39,6 +39,11 @@ while forcing the observational variance to be zero.
 model <- StructTS(y, type="level", fixed=c(0, NA))
 ```
 
+### Discussion {-}
+The R software always assumes that $y$ has an error term.
+We get around that by forcing its variance to be zero,
+effectively eliminating it.
+
 ### Example {-}
 
 ```{r echo=TRUE, eval=TRUE}
@@ -47,11 +52,6 @@ y <- datasets::Nile
 model <- StructTS(y, type="level", fixed=c(0, NA))
 print(model)
 ```
-
-### Discussion {-}
-The R software always assumes that $y$ has an error term.
-We get around that by forcing its variance to be zero,
-effectively eliminating it.
 
 ### See Also {-}
 
@@ -68,6 +68,8 @@ for models created using the `StructTS` function.
 tsdiag(model)
 ```
 
+### Discussion {-}
+
 ### Example {-}
 
 ```{r echo=TRUE, eval=TRUE, fig.height=8}
@@ -76,8 +78,6 @@ y <- datasets::Nile
 model <- StructTS(y, type="level", fixed=c(0, NA))
 tsdiag(model)
 ```
-
-### Discussion {-}
 
 ### See Also {-}
 
@@ -88,8 +88,8 @@ You want to forecast a time series using the random walk model.
 
 ### Solution {-}
 
-### Example {-}
-
 ### Discussion {-}
+
+### Example {-}
 
 ### See Also {-}
