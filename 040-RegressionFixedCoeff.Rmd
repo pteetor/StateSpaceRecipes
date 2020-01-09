@@ -1,10 +1,12 @@
-# Regression Model, Fixed Coefficients {#regressionFixed}
+# Regression Model {#regressionModel}
+This model adds an explanatory variable
+The variable has a coefficient, $\lambda$,
+which can be either *fixed* or *time-varying*.
 
-This model adds an explanatory varible with fixed coefficient $\lambda$.
-
-(*Move to footnote:* In the next section, we will consider models with time-varying coefficients.
-
-The coefficient is "fixed" in the sense that it does not vary over time.
+## Introduction
+### Fixed coefficient
+In this version of the regression model,
+the coefficient is "fixed" in the sense that it does not vary over time.
 
 \begin{eqnarray*}
   y_{t} & = & \mu_{t} + \lambda x_{t} + \epsilon_{t}, \qquad \epsilon_{t} \sim N(0, \sigma_{\epsilon}^{2}) \\
@@ -21,6 +23,36 @@ $\sigma_{\xi}^2$         Variance of transition errors, $\xi$
 $\mu_{0}$                Initial level of $\mu$
 $\lambda$                Coefficient of $x$
 -----------------------  ---------------------------------------------
+
+### Time-varying coefficient
+
+This formulation is similar to the previous one,
+but now the coefficient of the explanatory variable *does* vary over time.
+The equational formulation is similar.
+The difference is that the slope, $\lambda$,
+becomes $\lambda_{t}$, subscripted by time.
+
+\begin{eqnarray*}
+  y_{t} & = & \mu_{t} + \lambda_{t}x_{t} + \epsilon_{t}, \qquad \epsilon_{t} \sim N(0, \sigma_{\epsilon}^{2}) \\
+  \mu_{t} & = & \mu_{t-1} + \xi_{t}, \qquad \xi_{t} \sim N(0,\sigma_{\xi}^{2}) \\
+  \lambda_{t} & = & \lambda_{t-1} + \zeta_{t}, \qquad \zeta_{t} \sim N(0,\sigma_{\zeta}^{2})
+\end{eqnarray*}
+
+The state vector is $\alpha_{t} = (\mu_{t}, \lambda_{t})^{\top}$,
+where both components vary over time.
+
+The $\lambda_{t}$ follow a random walk with error terms $\zeta_{t}$,
+and that introduces a new parameter, $\sigma_{\zeta}^{2}$,
+the variance of the errors.
+The full set of five parameters is:
+
+-----------------------  --------------------------------------------------
+$\sigma_{\epsilon}^2$    Variance of observation errors, $\epsilon$
+$\sigma_{\xi}^2$         Variance of transition errors, $\xi$
+$\sigma_{\zeta}^2$       Variance of transition errors, $\zeta$
+$\mu_{0}$                Initial level of $\mu$
+$\lambda_{0}$            Initial level of $\lambda$
+-----------------------  --------------------------------------------------
 
 ## Fitting a Regression Model, Fixed Coefficients {#fitRegressionFixed}
 
@@ -96,9 +128,10 @@ containing the model parameters.
 
 We need reasonable guesses for the parameters,
 in order to kick-start the parameter optimization.
-Here are my choices,
-but really any reasonable choices will work OK.
+Here are my guesses,
+but really any reasonable ones will work OK.
 
+Parameter                Guess
 -----------------------  ---------------------------------------------
 $\sigma_{\epsilon}^2$    Variance of differenced $y$ data
 $\sigma_{\xi}^2$         Some fraction of $\sigma_{\epsilon}^2$
@@ -106,7 +139,7 @@ $\mu_{0}$                First observed value of $y$: `y[0]`
 $\lambda$                Average of the differenced $y$ data
 -----------------------  ---------------------------------------------
 
-This code implements my guesses.
+This code calculates those guesses.
 
 ```{r, eval=FALSE}
 varGuess <- var(diff(y), na.rm=TRUE)
@@ -175,6 +208,91 @@ model <- buildModReg(mle$par)
 ```
 
 ### See Also {-}
+
+## Fitting a Regression Model, Time-Varying Coefficients {#fitRegressionVarying}
+
+### Problem {-}
+You have time series data and a regressor variable (also a time series).
+You want to estimate the parameters of a regression model
+with a time-varying coefficient.
+
+### Solution {-}
+The model-building function is similar to
+the recipe for [Fitting a Regression Model with Fixed Coefficients](#fitRegressionFixed),
+but does *not* force the variance of the coefficient, $\lambda$, to zero.
+
+```{r, eval=FALSE}
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])                 # Variances for mu, lambda
+  m0 <- v[4:5]                      # Initial levels for mu, lambda
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+```
+
+We need reasonable guesses for the parameters:
+variances and initial levels.
+
+```{r, eval=FALSE}
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- mean(diff(y), na.rm=TRUE)
+```
+
+We call `dlmMLE` to estimate the MLE parameters through numerical optimization,
+checking for convergence.
+
+```{r, eval=FALSE}
+parm <- c(log(varGuess), log(varGuess/5), log(varGuess/5),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+```
+
+From the MLE parameters, we construct the final model object.
+
+```{r, eval=FALSE}
+model <- buildModReg(mle$par)
+```
+
+### Discussion {-}
+
+### Example {-}
+
+This is yet another model of the Nile River data,
+using the same explanatory variable, `x`, as the
+recipe for fitting a regression model
+but letting its coefficient vary over time.
+
+```{r, eval=TRUE}
+library(dlm)
+
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])
+  m0 <- v[4:5]
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- mean(diff(y), na.rm=TRUE)
+
+parm <- c(log(varGuess), log(varGuess/5), log(varGuess/5),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
+### See Also {-}
+
 
 ## Diagnosing a Regression Model, Fixed Coefficients {#diagnoseRegressionFixed}
 
@@ -251,7 +369,7 @@ It smooths the original data based on that model.
 ```{r, eval=TRUE, echo=TRUE}
 smooth <- dlmSmooth(y, model)
 
-# Copmute the final, smoothed data using this linear combination
+# Compute the final, smoothed data using this linear combination
 smoothed <- smooth$s[-1,1] + x*smooth$s[-1,2]
 
 both <- cbind(y=y, smoothed=smoothed)
