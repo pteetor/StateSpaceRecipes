@@ -57,7 +57,8 @@ $\lambda_{0}$            Initial level of $\lambda$
 ## Fitting a Regression Model, Fixed Coefficients {#fitRegressionFixed}
 
 ### Problem {-}
-You have time series data and a regressor variable (also a time series).
+You have time series data and a regressor variable
+(that is also a time series).
 You want to build a regression model of the time series,
 assuming the regression coefficient is fixed.
 
@@ -212,11 +213,38 @@ model <- buildModReg(mle$par)
 ## Fitting a Regression Model, Time-Varying Coefficients {#fitRegressionVarying}
 
 ### Problem {-}
-You have time series data and a regressor variable (also a time series).
+You have time series data, `y`, and a regressor variable, `x`,
+that is also a time series.
 You want to estimate the parameters of a regression model
-with a time-varying coefficient.
+with a time-varying coefficient for `x`.
 
 ### Solution {-}
+
+```{r, eval=FALSE}
+buildModReg <- function(v) {
+  dV <- exp(v[1])
+  dW <- exp(v[2:3])                 # Variances for mu, lambda
+  m0 <- v[4:5]                      # Initial levels for mu, lambda
+  dlmModReg(x, dV=dV, dW=dW, m0=m0)
+}
+
+varGuess <- var(diff(y), na.rm=TRUE)
+mu0Guess <- as.numeric(y[1])
+lambda0Guess <- mean(diff(y), na.rm=TRUE)
+
+parm <- c(log(varGuess), log(varGuess/5), log(varGuess/5),
+          mu0Guess, lambda0Guess)
+mle <- dlmMLE(y, parm=parm, build=buildModReg)
+
+if (mle$convergence != 0) stop(mle$message)
+
+model <- buildModReg(mle$par)
+```
+
+Note that as of this writing,
+the dlm package supports only univariate regression.
+
+### Discussion {-}
 The model-building function is similar to
 the recipe for [Fitting a Regression Model with Fixed Coefficients](#fitRegressionFixed),
 but does *not* force the variance of the coefficient, $\lambda$, to zero.
@@ -231,7 +259,7 @@ buildModReg <- function(v) {
 ```
 
 We need reasonable guesses for the parameters:
-variances and initial levels.
+variances and initial levels of the state variables.
 
 ```{r, eval=FALSE}
 varGuess <- var(diff(y), na.rm=TRUE)
@@ -256,20 +284,22 @@ From the MLE parameters, we construct the final model object.
 model <- buildModReg(mle$par)
 ```
 
-### Discussion {-}
 
 ### Example {-}
-
 This is yet another model of the Nile River data,
 using the same explanatory variable, `x`, as the
-recipe for fitting a regression model
-but letting its coefficient vary over time.
+[previous recipe](#fitRegressionFixed)
+but letting its regression coefficient vary over time.
+
+```{r, eval=TRUE}
+y <- datasets::Nile
+x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
+```
+
+We can run the solution code.
 
 ```{r, eval=TRUE}
 library(dlm)
-
-y <- datasets::Nile
-x <- cbind(c(rep(0,27), rep(1,length(y)-27)))
 
 buildModReg <- function(v) {
   dV <- exp(v[1])
@@ -289,6 +319,12 @@ mle <- dlmMLE(y, parm=parm, build=buildModReg)
 if (mle$convergence != 0) stop(mle$message)
 
 model <- buildModReg(mle$par)
+```
+
+The result is in `model`.
+
+```{r, eval=TRUE}
+print(model)
 ```
 
 ### See Also {-}
@@ -369,7 +405,7 @@ It smooths the original data based on that model.
 ```{r, eval=TRUE, echo=TRUE}
 smooth <- dlmSmooth(y, model)
 
-# Compute the final, smoothed data using this linear combination
+# The final, smoothed time series is this linear combination
 smoothed <- smooth$s[-1,1] + x*smooth$s[-1,2]
 
 both <- cbind(y=y, smoothed=smoothed)
